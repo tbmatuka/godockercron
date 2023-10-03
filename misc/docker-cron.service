@@ -1,0 +1,8 @@
+[Unit]
+Description=Docker Cron
+
+[Service]
+ExecStart=/usr/local/bin/docker-cron
+
+[Install]
+WantedBy=default.target
