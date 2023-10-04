@@ -13,12 +13,12 @@ import (
 )
 
 func runJob(job cronFileEntry, _ gocron.Job) {
-	cli, err := client.NewClientWithOpts(client.FromEnv)
+	dockerClient, err := client.NewClientWithOpts(client.FromEnv)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	info, err := cli.Info(context.Background())
+	info, err := dockerClient.Info(context.Background())
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -32,7 +32,7 @@ func runJob(job cronFileEntry, _ gocron.Job) {
 		filterArgs.Add(`label`, fmt.Sprintf(`com.docker.compose.service=%s`, job.Service))
 	}
 
-	containers, err := cli.ContainerList(context.Background(), types.ContainerListOptions{Filters: filterArgs})
+	containers, err := dockerClient.ContainerList(context.Background(), types.ContainerListOptions{Filters: filterArgs})
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -51,9 +51,9 @@ func runJob(job cronFileEntry, _ gocron.Job) {
 		Cmd:          strings.Split(job.Command, ` `),
 	}
 
-	exec, _ := cli.ContainerExecCreate(context.Background(), containerID, execConfig)
+	exec, _ := dockerClient.ContainerExecCreate(context.Background(), containerID, execConfig)
 
-	attach, err := cli.ContainerExecAttach(context.Background(), exec.ID, types.ExecStartCheck{})
+	attach, err := dockerClient.ContainerExecAttach(context.Background(), exec.ID, types.ExecStartCheck{})
 	if err != nil {
 		jobLog(job, fmt.Sprintf(`Exec error: %s`, err))
 	}

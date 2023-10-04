@@ -38,6 +38,7 @@ linters:
     - golint # deprecated, replaced with revive
     - interfacer # deprecated
     - maligned # deprecated
+    - gosmopolitan
     - wrapcheck
     - nlreturn
     - gomnd

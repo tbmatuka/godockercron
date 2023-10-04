@@ -1,7 +1,6 @@
 package godockercron
 
 import (
-	"fmt"
 	"github.com/go-co-op/gocron"
 	"log"
 	"sync"
@@ -42,19 +41,19 @@ func (manager *jobManager) updateJobs(newJobs []cronFileEntry) {
 		isMissing := true
 
 		for _, newJob := range newJobs {
-			if sameJob(&newJob, &job) {
+			if sameJob(newJob, job) {
 				isMissing = false
 			}
 		}
 
 		if isMissing {
-			log.Println(fmt.Sprintf(
-				`Removing job: %s - %s - %s %s`,
+			log.Printf(
+				"Removing job: %s - %s - %s %s\n",
 				job.Stack,
 				job.Service,
 				job.Timing,
 				job.Command,
-			))
+			)
 
 			manager.scheduler.RemoveByReference(job.Job)
 		} else {
@@ -67,23 +66,23 @@ func (manager *jobManager) updateJobs(newJobs []cronFileEntry) {
 		isNew := true
 
 		for _, job := range jobs {
-			if sameJob(&newJob, &job) {
+			if sameJob(newJob, job) {
 				isNew = false
 			}
 		}
 
 		if isNew {
-			log.Println(fmt.Sprintf(
-				`Adding job: %s - %s - %s %s`,
+			log.Printf(
+				"Adding job: %s - %s - %s %s\n",
 				newJob.Stack,
 				newJob.Service,
 				newJob.Timing,
 				newJob.Command,
-			))
+			)
 
 			jobPointer, err := manager.scheduler.Cron(newJob.Timing).DoWithJobDetails(runJob, newJob)
 			if err != nil {
-				log.Println(fmt.Sprintf(`Error adding job: %s`, err))
+				log.Printf("Error adding job: %s\n", err)
 			}
 
 			jobs = append(jobs, job{
@@ -103,7 +102,7 @@ func (manager *jobManager) startScheduler() {
 	manager.scheduler.StartAsync()
 }
 
-func sameJob(newJob *cronFileEntry, oldJob *job) bool {
+func sameJob(newJob cronFileEntry, oldJob job) bool {
 	return newJob.Stack == oldJob.Stack &&
 		newJob.Service == oldJob.Service &&
 		newJob.Timing == oldJob.Timing &&
