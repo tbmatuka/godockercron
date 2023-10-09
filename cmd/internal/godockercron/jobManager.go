@@ -19,13 +19,15 @@ type jobManager struct {
 	lock      sync.Mutex
 	jobs      []job
 	scheduler *gocron.Scheduler
+	noOp      bool
 }
 
-func newJobManager() *jobManager {
+func newJobManager(noOp bool) *jobManager {
 	manager := new(jobManager)
 
 	manager.scheduler = gocron.NewScheduler(time.Local)
 	manager.scheduler.SingletonModeAll()
+	manager.noOp = noOp
 
 	return manager
 }
@@ -80,7 +82,7 @@ func (manager *jobManager) updateJobs(newJobs []cronFileEntry) {
 				newJob.Command,
 			)
 
-			jobPointer, err := manager.scheduler.Cron(newJob.Timing).DoWithJobDetails(runJob, newJob)
+			jobPointer, err := manager.scheduler.Cron(newJob.Timing).DoWithJobDetails(runJob, manager.noOp, newJob)
 			if err != nil {
 				log.Printf("Error adding job: %s\n", err)
 			}

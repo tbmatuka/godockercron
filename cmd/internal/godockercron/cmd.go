@@ -2,6 +2,7 @@ package godockercron
 
 import (
 	"github.com/spf13/cobra"
+	"log"
 	"os"
 )
 
@@ -22,9 +23,14 @@ func Execute() {
 }
 
 func runWatchCmd(cmd *cobra.Command, _ []string) {
-	jobManager := newJobManager()
+	noOp, _ := cmd.Flags().GetBool(`no-op`)
+	jobManager := newJobManager(noOp)
 
-	dir := cmd.Flag(`dir`).Value.String()
+	if noOp {
+		log.Println(`Started with no-op`)
+	}
+
+	dir, _ := cmd.Flags().GetString(`dir`)
 	newJobs := getAllCronFileEntries(dir)
 	jobManager.updateJobs(newJobs)
 	jobManager.startScheduler()

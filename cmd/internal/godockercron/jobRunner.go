@@ -12,7 +12,7 @@ import (
 	"strings"
 )
 
-func runJob(job cronFileEntry, _ gocron.Job) {
+func runJob(noOp bool, job cronFileEntry, _ gocron.Job) {
 	dockerClient, err := client.NewClientWithOpts(client.FromEnv)
 	if err != nil {
 		log.Fatal(err)
@@ -39,6 +39,12 @@ func runJob(job cronFileEntry, _ gocron.Job) {
 
 	if len(containers) == 0 {
 		jobLog(job, `Container not found`)
+
+		return
+	}
+
+	if noOp {
+		jobLog(job, `no-op`)
 
 		return
 	}
